@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Poll - Admin</title>
+  <link rel="stylesheet" href="/admin/styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Dashboard Screen -->
+    <div id="dashboard-screen" class="screen active">
+      <div class="header">
+        <h1>Team Poll Dashboard</h1>
+      </div>
+
+      <div class="dashboard-content">
+        <div class="card">
+          <h2>Create New Poll</h2>
+          <button id="create-poll-btn" class="btn btn-primary btn-large">Create New Poll</button>
+          <div id="active-poll-warning" class="error-message" style="display: none;">
+            Another poll is currently active. Please wait for it to complete.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Recent Polls</h2>
+          <div id="polls-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Poll Screen -->
+    <div id="create-poll-screen" class="screen">
+      <div class="header">
+        <h1>Create New Poll</h1>
+        <button id="back-to-dashboard-btn" class="btn btn-secondary">Back to Dashboard</button>
+      </div>
+
+      <div class="create-poll-content">
+        <div class="card">
+          <h2>Poll Name</h2>
+          <input type="text" id="poll-name-input" placeholder="Enter poll name (e.g., Team Feedback Q1)">
+        </div>
+
+        <div class="card">
+          <h2>Questions</h2>
+          <div id="questions-container"></div>
+          <button id="add-question-btn" class="btn btn-secondary">+ Add Question</button>
+        </div>
+
+        <div class="card">
+          <button id="save-poll-btn" class="btn btn-primary btn-large">Save & Start Poll</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Control Poll Screen -->
+    <div id="control-poll-screen" class="screen">
+      <div class="header">
+        <h1>Poll Control</h1>
+        <div class="header-actions">
+          <span id="participant-count" class="badge">0 participants</span>
+          <button id="end-poll-btn" class="btn btn-danger">End Poll</button>
+          <button id="back-to-dashboard-btn-2" class="btn btn-secondary">Back to Dashboard</button>
+        </div>
+      </div>
+
+      <div class="control-content">
+        <div class="card session-info">
+          <h3>Session Info</h3>
+          <div class="info-row" id="poll-name-row" style="display: none;">
+            <span>Poll Name:</span>
+            <strong id="poll-name-display"></strong>
+          </div>
+          <div class="info-row">
+            <span>Session ID:</span>
+            <strong id="session-id-display"></strong>
+          </div>
+          <div class="info-row">
+            <span>Participant URL:</span>
+            <div class="url-copy">
+              <input type="text" id="participant-url" readonly>
+              <button id="copy-url-btn" class="btn btn-small">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Questions & Results</h3>
+          <div id="questions-control"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/admin/app.js"></script>
+</body>
+</html>

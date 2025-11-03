@@ -1,0 +1,8 @@
+{
+  "port": 3000,
+  "max_participants": 100,
+  "session_timeout_minutes": 120,
+  "auto_delete_polls_after_days": 30,
+  "rate_limit_window_ms": 60000,
+  "rate_limit_max_requests": 10
+}

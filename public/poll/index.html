@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Poll</title>
+  <link rel="stylesheet" href="/poll/styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen active">
+      <div class="card">
+        <div class="spinner-large"></div>
+        <p>Connecting to poll...</p>
+      </div>
+    </div>
+
+    <!-- Waiting Screen -->
+    <div id="waiting-screen" class="screen">
+      <div class="card">
+        <div class="icon">⏳</div>
+        <h2>Waiting for facilitator...</h2>
+        <p>The poll will begin shortly.</p>
+      </div>
+    </div>
+
+    <!-- Question Screen -->
+    <div id="question-screen" class="screen">
+      <div class="card">
+        <div class="question-header">
+          <h2 id="question-text"></h2>
+        </div>
+
+        <div id="answer-options" class="answer-options"></div>
+
+        <button id="submit-btn" class="btn btn-primary btn-large" disabled>Submit Answer</button>
+        <div id="error-message" class="error-message"></div>
+      </div>
+    </div>
+
+    <!-- Submitted Screen -->
+    <div id="submitted-screen" class="screen">
+      <div class="card">
+        <div class="icon success">✓</div>
+        <h2>Answer submitted!</h2>
+        <p>Waiting for next question...</p>
+      </div>
+    </div>
+
+    <!-- Poll Ended Screen -->
+    <div id="ended-screen" class="screen">
+      <div class="card">
+        <div class="icon">🎉</div>
+        <h2>Thank you for participating!</h2>
+        <p>The poll has ended.</p>
+      </div>
+    </div>
+
+    <!-- Error Screen -->
+    <div id="error-screen" class="screen">
+      <div class="card">
+        <div class="icon error">⚠</div>
+        <h2>Oops!</h2>
+        <p id="error-screen-message">Something went wrong. Please try refreshing the page.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/poll/app.js"></script>
+</body>
+</html>
