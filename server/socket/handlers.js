@@ -8,11 +8,10 @@ const activeAdmins = new Map();
 
 function initSocketHandlers(io) {
   io.on('connection', (socket) => {
-    console.log('Client connected:', socket.id);
-
     let currentSession = null;
     let isAdmin = false;
     let answeredQuestions = new Set(); // Track which questions this socket has answered
+    let connectionLogged = false; // Track if we've logged the connection type
 
     // Admin joins session
     socket.on('admin_join', ({ session_id }) => {
@@ -39,6 +38,10 @@ function initSocketHandlers(io) {
       const participantCount = getParticipantCount(session_id);
       socket.emit('participant_count', { count: participantCount });
 
+      if (!connectionLogged) {
+        console.log('Admin connected:', socket.id);
+        connectionLogged = true;
+      }
       console.log(`Admin joined session: ${session_id}`);
     });
 
@@ -78,6 +81,10 @@ function initSocketHandlers(io) {
       const participantCount = sessionConnections.get(session_id).size;
       io.to(`admin-${session_id}`).emit('participant_count', { count: participantCount });
 
+      if (!connectionLogged) {
+        console.log('Participant connected:', socket.id);
+        connectionLogged = true;
+      }
       console.log(`Participant joined session: ${session_id}, total: ${participantCount}`);
     });
 
@@ -241,7 +248,11 @@ function initSocketHandlers(io) {
 
     // Handle disconnect
     socket.on('disconnect', () => {
-      console.log('Client disconnected:', socket.id);
+      if (isAdmin) {
+        console.log('Admin disconnected:', socket.id);
+      } else if (connectionLogged) {
+        console.log('Participant disconnected:', socket.id);
+      }
 
       if (currentSession) {
         if (isAdmin) {

@@ -220,6 +220,79 @@ function addOption(index) {
   optionsContainer.appendChild(optionGroup);
 }
 
+// Add option in edit mode
+window.addEditOption = function(index) {
+  const questionDiv = document.querySelector(`.question-item[data-index="${index}"]`);
+  const optionsContainer = questionDiv.querySelector('.options-container');
+
+  const optionCount = optionsContainer.querySelectorAll('.option-input-group').length + 1;
+
+  const optionGroup = document.createElement('div');
+  optionGroup.className = 'option-input-group';
+
+  // Add - button to new options
+  optionGroup.innerHTML = `
+    <input type="text" placeholder="Option ${optionCount}" class="option-input" />
+    <button class="btn btn-small btn-danger" onclick="removeEditOption(${index}, this)">-</button>
+  `;
+
+  optionsContainer.appendChild(optionGroup);
+
+  // Update buttons on all options to ensure proper state
+  updateEditOptionButtons(index);
+}
+
+// Remove option in edit mode
+window.removeEditOption = function(index, button) {
+  const questionDiv = document.querySelector(`.question-item[data-index="${index}"]`);
+  const optionsContainer = questionDiv.querySelector('.options-container');
+  const optionGroups = optionsContainer.querySelectorAll('.option-input-group');
+
+  // Don't allow removal if only 2 options left
+  if (optionGroups.length <= 2) {
+    alert('Must have at least 2 options');
+    return;
+  }
+
+  // Remove the option group
+  button.parentElement.remove();
+
+  // Update buttons on remaining options
+  updateEditOptionButtons(index);
+}
+
+// Update buttons for edit mode options
+function updateEditOptionButtons(index) {
+  const questionDiv = document.querySelector(`.question-item[data-index="${index}"]`);
+  const optionsContainer = questionDiv.querySelector('.options-container');
+  const optionGroups = optionsContainer.querySelectorAll('.option-input-group');
+
+  optionGroups.forEach((group, idx) => {
+    const input = group.querySelector('.option-input');
+    const inputValue = input.value;
+    const inputPlaceholder = input.placeholder;
+
+    // Clear existing buttons
+    const existingButtons = group.querySelectorAll('button');
+    existingButtons.forEach(btn => btn.remove());
+
+    // Re-add buttons based on position and count
+    let buttons = '';
+    if (idx === 0) {
+      buttons += `<button class="btn btn-small btn-secondary" onclick="addEditOption(${index})">+</button>`;
+    }
+    if (optionGroups.length > 2) {
+      buttons += `<button class="btn btn-small btn-danger" onclick="removeEditOption(${index}, this)">-</button>`;
+    }
+
+    // Rebuild the group HTML
+    group.innerHTML = `
+      <input type="text" placeholder="${inputPlaceholder}" class="option-input" value="${inputValue}" />
+      ${buttons}
+    `;
+  });
+}
+
 // Save Poll
 document.getElementById('save-poll-btn').addEventListener('click', async () => {
   const questions = [];
@@ -362,6 +435,17 @@ async function openPoll(sessionId) {
     document.getElementById('session-id-display').textContent = sessionId;
     const participantUrl = `${window.location.origin}/poll/${sessionId}`;
     document.getElementById('participant-url').value = participantUrl;
+
+    // Generate QR code
+    fetch(`/api/admin/qrcode?url=${encodeURIComponent(participantUrl)}`)
+      .then(response => response.blob())
+      .then(blob => {
+        const img = document.getElementById('qr-code-image');
+        img.src = URL.createObjectURL(blob);
+      })
+      .catch(error => {
+        console.error('QR Code generation error:', error);
+      });
 
     // Display poll name if available
     if (currentPoll.poll_name) {
@@ -827,7 +911,20 @@ window.editPoll = async function(sessionId) {
         optionsArray.forEach((option, idx) => {
           const optionGroup = document.createElement('div');
           optionGroup.className = 'option-input-group';
-          optionGroup.innerHTML = `<input type="text" placeholder="Option ${idx + 1}" class="option-input" value="${option}" />`;
+
+          // Add + button to first option, - button to all options if more than 2
+          let buttons = '';
+          if (idx === 0) {
+            buttons = `<button class="btn btn-small btn-secondary" onclick="addEditOption(${questionCount})">+</button>`;
+          }
+          if (optionsArray.length > 2) {
+            buttons += `<button class="btn btn-small btn-danger" onclick="removeEditOption(${questionCount}, this)">-</button>`;
+          }
+
+          optionGroup.innerHTML = `
+            <input type="text" placeholder="Option ${idx + 1}" class="option-input" value="${option}" />
+            ${buttons}
+          `;
           optionsContainer.appendChild(optionGroup);
         });
       } else if (question.question_type === 'rating') {

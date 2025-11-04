@@ -18,6 +18,7 @@ const io = new Server(server);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
+app.use('/lib/qrcode', express.static(path.join(__dirname, '../node_modules/qrcode/build')));
 
 // Import routes
 const adminRoutes = require('./routes/admin');

@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const QRCode = require('qrcode');
 const Poll = require('../models/poll');
 const Response = require('../models/response');
 const { hasActiveAdmin, getActivePolls } = require('../socket/handlers');
@@ -399,6 +400,32 @@ router.post('/templates/import', (req, res) => {
   } catch (error) {
     console.error('Error importing templates:', error);
     res.status(500).json({ error: 'Failed to import templates' });
+  }
+});
+
+// Generate QR code
+router.get('/qrcode', async (req, res) => {
+  try {
+    const url = req.query.url;
+    if (!url) {
+      return res.status(400).send('URL parameter is required');
+    }
+
+    // Generate QR code as PNG buffer
+    const qrCodeBuffer = await QRCode.toBuffer(url, {
+      width: 200,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF'
+      }
+    });
+
+    res.setHeader('Content-Type', 'image/png');
+    res.send(qrCodeBuffer);
+  } catch (error) {
+    console.error('Error generating QR code:', error);
+    res.status(500).send('Failed to generate QR code');
   }
 });
 

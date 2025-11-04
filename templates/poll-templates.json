@@ -78,6 +78,13 @@
         "options": null,
         "scale_min": 0,
         "scale_max": 10
+      },
+      {
+        "question_text": "What's the one thing you want me focused on as the leader of this team?",
+        "question_type": "text",
+        "options": null,
+        "scale_min": null,
+        "scale_max": null
       }
     ]
   },
@@ -177,7 +184,20 @@
           "Books",
           "TV shows/Movies",
           "Podcasts",
+          "Games",
           "Don't have time for stories!"
+        ],
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "Star Wars or Star Trek?",
+        "question_type": "multiple_choice",
+        "options": [
+          "Star Wars",
+          "Star Trek",
+          "Neither",
+          "Both"
         ],
         "scale_min": null,
         "scale_max": null
