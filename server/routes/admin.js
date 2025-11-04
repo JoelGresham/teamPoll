@@ -77,6 +77,70 @@ router.post('/polls', async (req, res) => {
   }
 });
 
+// Update poll (only allowed if poll hasn't been started)
+router.put('/polls/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const { questions, poll_name } = req.body;
+
+    // Check if poll exists and hasn't been started
+    const poll = Poll.getById(sessionId);
+    if (!poll) {
+      return res.status(404).json({ error: 'Poll not found' });
+    }
+
+    if (poll.current_question_index !== -1) {
+      return res.status(400).json({ error: 'Cannot edit poll that has been started' });
+    }
+
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+      return res.status(400).json({ error: 'Questions array is required' });
+    }
+
+    // Validate questions
+    for (const q of questions) {
+      if (!q.question_text || !q.question_type) {
+        return res.status(400).json({ error: 'Each question must have question_text and question_type' });
+      }
+
+      if (!['multiple_choice', 'yes_no', 'rating', 'text'].includes(q.question_type)) {
+        return res.status(400).json({ error: 'Invalid question_type' });
+      }
+
+      if (q.question_type === 'multiple_choice' && (!q.options || q.options.length < 2)) {
+        return res.status(400).json({ error: 'Multiple choice questions must have at least 2 options' });
+      }
+
+      if (q.question_type === 'rating' && (q.scale_min === undefined || q.scale_max === undefined)) {
+        return res.status(400).json({ error: 'Rating questions must have scale_min and scale_max' });
+      }
+    }
+
+    // Delete existing questions
+    Poll.deleteQuestions(sessionId);
+
+    // Update poll name if provided
+    if (poll_name !== undefined) {
+      Poll.updatePollName(sessionId, poll_name);
+    }
+
+    // Add new questions
+    questions.forEach((q, index) => {
+      Poll.addQuestion(sessionId, index, q);
+    });
+
+    const updatedPoll = Poll.getFullPoll(sessionId);
+
+    res.json({
+      success: true,
+      poll: updatedPoll
+    });
+  } catch (error) {
+    console.error('Error updating poll:', error);
+    res.status(500).json({ error: 'Failed to update poll' });
+  }
+});
+
 // Get all polls
 router.get('/polls', (req, res) => {
   try {
@@ -219,6 +283,73 @@ router.delete('/polls/:sessionId', (req, res) => {
   } catch (error) {
     console.error('Error deleting poll:', error);
     res.status(500).json({ error: 'Failed to delete poll' });
+  }
+});
+
+// Export poll templates (original polls only, no responses or reruns)
+router.get('/templates/export', (req, res) => {
+  try {
+    const polls = Poll.getAll();
+
+    // Filter: only original polls (not reruns), exclude responses
+    const templates = polls
+      .filter(poll => !poll.is_rerun && poll.status !== 'completed')
+      .map(poll => {
+        const questions = Poll.getQuestions(poll.session_id);
+        return {
+          poll_name: poll.poll_name,
+          questions: questions.map(q => ({
+            question_text: q.question_text,
+            question_type: q.question_type,
+            options: q.options,
+            scale_min: q.scale_min,
+            scale_max: q.scale_max
+          }))
+        };
+      });
+
+    res.json({ templates });
+  } catch (error) {
+    console.error('Error exporting templates:', error);
+    res.status(500).json({ error: 'Failed to export templates' });
+  }
+});
+
+// Import poll templates
+router.post('/templates/import', (req, res) => {
+  try {
+    const { templates } = req.body;
+
+    if (!templates || !Array.isArray(templates)) {
+      return res.status(400).json({ error: 'Templates array is required' });
+    }
+
+    const imported = [];
+
+    templates.forEach(template => {
+      if (!template.questions || template.questions.length === 0) {
+        return; // Skip templates without questions
+      }
+
+      // Create poll
+      const sessionId = Poll.create('', template.poll_name || null, false, null);
+
+      // Add questions
+      template.questions.forEach((q, index) => {
+        Poll.addQuestion(sessionId, index, q);
+      });
+
+      imported.push(sessionId);
+    });
+
+    res.json({
+      success: true,
+      imported: imported.length,
+      session_ids: imported
+    });
+  } catch (error) {
+    console.error('Error importing templates:', error);
+    res.status(500).json({ error: 'Failed to import templates' });
   }
 });
 

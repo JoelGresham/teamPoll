@@ -1,0 +1,77 @@
+[
+  {
+    "poll_name": "Getting to know you",
+    "questions": [
+      {
+        "question_text": "I'm more of a morning person or a night owl",
+        "question_type": "multiple_choice",
+        "options": ["Morning person", "Night owl", "Somewhere in between"],
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "My ideal weekend involves",
+        "question_type": "multiple_choice",
+        "options": ["Adventure & being active", "Relaxing & recharging", "Mix of both"],
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "Dogs or cats?",
+        "question_type": "multiple_choice",
+        "options": ["Dogs", "Cats", "Both", "Neither"],
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "On a scale of 0-10, I'm more introverted or extroverted (0 = very introverted, 10 = very extroverted)",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "My most favourite food is",
+        "question_type": "text",
+        "options": null,
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "I'm most productive when",
+        "question_type": "multiple_choice",
+        "options": ["Working completely alone", "Collaborating with others", "Mix depending on the task"],
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "My hidden talent or hobby that most people don't know about",
+        "question_type": "text",
+        "options": null,
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "On a scale of 0-10, how much do I love trying new foods? (0 = stick to what I know, 10 = always experimenting)",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "Coffee, tea, or something else?",
+        "question_type": "multiple_choice",
+        "options": ["Coffee", "Tea", "Energy drinks", "Water", "Other"],
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "I prefer to consume stories through",
+        "question_type": "multiple_choice",
+        "options": ["Books", "TV shows/Movies", "Podcasts", "Don't have time for stories!"],
+        "scale_min": null,
+        "scale_max": null
+      }
+    ]
+  }
+]

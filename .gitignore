@@ -1,6 +1,12 @@
 node_modules/
 .env
-*.db
-*.db-journal
 *.log
 .DS_Store
+
+# Database files - exclude from git
+*.db
+*.db-journal
+data/
+
+# Templates - INCLUDE in git for version control
+!templates/

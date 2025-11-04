@@ -87,7 +87,9 @@ function displayPolls(polls) {
         </div>
         <div class="poll-item-actions">
           ${poll.status !== 'completed' ?
-            `<button class="btn btn-primary btn-small" onclick="openPoll('${poll.session_id}')" ${disableControls ? 'disabled' : ''}>Open</button>` :
+            `${poll.current_question_index === -1 && !disableControls ?
+              `<button class="btn btn-secondary btn-small" onclick="editPoll('${poll.session_id}')">Edit</button>` : ''}
+             <button class="btn btn-primary btn-small" onclick="openPoll('${poll.session_id}')" ${disableControls ? 'disabled' : ''}>Open</button>` :
             poll.is_rerun && poll.original_poll_id ?
               `<button class="btn btn-secondary btn-small" onclick="viewResults('${poll.session_id}')">View Results</button>
                <button class="btn btn-primary btn-small" onclick="compareResults('${poll.session_id}', '${poll.original_poll_id}')">Compare Results</button>` :
@@ -103,13 +105,18 @@ function displayPolls(polls) {
 
 // Create New Poll
 document.getElementById('create-poll-btn').addEventListener('click', () => {
+  editingPollId = null;
   questionCount = 0;
   document.getElementById('questions-container').innerHTML = '';
+  document.getElementById('poll-name-input').value = '';
+  document.getElementById('save-poll-btn').textContent = 'Create Poll';
   addQuestion(); // Start with one question
   showScreen('create-poll-screen');
 });
 
 document.getElementById('back-to-dashboard-btn').addEventListener('click', () => {
+  editingPollId = null;
+  document.getElementById('save-poll-btn').textContent = 'Create Poll';
   showScreen('dashboard-screen');
   loadDashboard();
 });
@@ -270,28 +277,57 @@ document.getElementById('save-poll-btn').addEventListener('click', async () => {
   const pollName = document.getElementById('poll-name-input').value.trim();
 
   try {
-    const response = await fetch('/api/admin/polls', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        questions,
-        poll_name: pollName || null
-      })
-    });
+    // Check if we're editing or creating
+    if (editingPollId) {
+      // Update existing poll
+      const response = await fetch(`/api/admin/polls/${editingPollId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          questions,
+          poll_name: pollName || null
+        })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.success) {
-      currentPoll = data.poll;
-      openPoll(data.session_id);
+      if (data.success) {
+        alert('Poll updated successfully!');
+        editingPollId = null;
+        document.getElementById('save-poll-btn').textContent = 'Create Poll';
+        showScreen('dashboard-screen');
+        loadDashboard();
+      } else {
+        alert('Failed to update poll: ' + (data.error || 'Unknown error'));
+      }
     } else {
-      alert('Failed to create poll: ' + (data.error || 'Unknown error'));
+      // Create new poll
+      const response = await fetch('/api/admin/polls', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          questions,
+          poll_name: pollName || null
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Poll created successfully!');
+        showScreen('dashboard-screen');
+        loadDashboard();
+      } else {
+        alert('Failed to create poll: ' + (data.error || 'Unknown error'));
+      }
     }
   } catch (error) {
-    console.error('Error creating poll:', error);
-    alert('Failed to create poll');
+    console.error('Error saving poll:', error);
+    alert('Failed to save poll');
   }
 });
 
@@ -713,6 +749,71 @@ async function rerunPoll(sessionId) {
   }
 }
 
+// Edit Poll
+let editingPollId = null;
+
+async function editPoll(sessionId) {
+  try {
+    // Load poll data
+    const response = await fetch(`/api/admin/polls/${sessionId}`);
+    const data = await response.json();
+
+    if (!data.poll) {
+      alert('Poll not found');
+      return;
+    }
+
+    const poll = data.poll;
+
+    // Set editing mode
+    editingPollId = sessionId;
+
+    // Clear existing questions
+    questionCount = 0;
+    document.getElementById('questions-container').innerHTML = '';
+
+    // Set poll name
+    document.getElementById('poll-name-input').value = poll.poll_name || '';
+
+    // Load each question
+    poll.questions.forEach(question => {
+      addQuestion();
+      const questionDiv = document.querySelector(`.question-item[data-index="${questionCount}"]`);
+
+      // Set question text
+      questionDiv.querySelector('textarea').value = question.question_text;
+
+      // Set question type
+      questionDiv.querySelector('.question-type-select').value = question.question_type;
+      updateQuestionType(questionCount);
+
+      // Set type-specific data
+      if (question.question_type === 'multiple_choice' && question.options) {
+        const optionsContainer = questionDiv.querySelector('.options-container');
+        optionsContainer.innerHTML = '';
+        JSON.parse(question.options).forEach((option, idx) => {
+          const optionGroup = document.createElement('div');
+          optionGroup.className = 'option-input-group';
+          optionGroup.innerHTML = `<input type="text" placeholder="Option ${idx + 1}" class="option-input" value="${option}" />`;
+          optionsContainer.appendChild(optionGroup);
+        });
+      } else if (question.question_type === 'rating') {
+        questionDiv.querySelector('.scale-min').value = question.scale_min || 0;
+        questionDiv.querySelector('.scale-max').value = question.scale_max || 10;
+      }
+    });
+
+    // Update button text
+    document.getElementById('save-poll-btn').textContent = 'Update Poll';
+
+    // Show create poll screen
+    showScreen('create-poll-screen');
+  } catch (error) {
+    console.error('Error loading poll for edit:', error);
+    alert('Failed to load poll');
+  }
+}
+
 // Initialize
 // Setup dashboard socket for status updates
 function setupDashboardSocket() {
@@ -734,6 +835,71 @@ function setupDashboardSocket() {
     });
   }
 }
+
+// Export Templates
+document.getElementById('export-templates-btn').addEventListener('click', async () => {
+  try {
+    const response = await fetch('/api/admin/templates/export');
+    const data = await response.json();
+
+    if (data.templates && data.templates.length > 0) {
+      // Create JSON file and download
+      const jsonStr = JSON.stringify(data.templates, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'poll-templates.json';
+      a.click();
+      URL.revokeObjectURL(url);
+
+      alert(`Exported ${data.templates.length} poll template(s)`);
+    } else {
+      alert('No poll templates to export');
+    }
+  } catch (error) {
+    console.error('Error exporting templates:', error);
+    alert('Failed to export templates');
+  }
+});
+
+// Import Templates
+document.getElementById('import-templates-btn').addEventListener('click', () => {
+  document.getElementById('import-file-input').click();
+});
+
+document.getElementById('import-file-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const templates = JSON.parse(text);
+
+    const response = await fetch('/api/admin/templates/import', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ templates })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert(`Imported ${data.imported} poll template(s)`);
+      loadDashboard();
+    } else {
+      alert('Failed to import templates: ' + (data.error || 'Unknown error'));
+    }
+
+    // Reset file input
+    e.target.value = '';
+  } catch (error) {
+    console.error('Error importing templates:', error);
+    alert('Failed to import templates. Make sure the file is valid JSON.');
+  }
+});
 
 window.addEventListener('DOMContentLoaded', () => {
   loadDashboard();

@@ -106,6 +106,18 @@ class Poll {
     return stmt.run(sessionId);
   }
 
+  // Delete all questions for a poll (used when updating)
+  static deleteQuestions(sessionId) {
+    const stmt = db.prepare('DELETE FROM questions WHERE session_id = ?');
+    return stmt.run(sessionId);
+  }
+
+  // Update poll name
+  static updatePollName(sessionId, pollName) {
+    const stmt = db.prepare('UPDATE poll_sessions SET poll_name = ? WHERE session_id = ?');
+    return stmt.run(pollName, sessionId);
+  }
+
   // Get poll with questions and response counts
   static getFullPoll(sessionId) {
     const poll = this.getById(sessionId);
