@@ -198,17 +198,35 @@ function renderBarChart(result) {
   }).join('');
 }
 
-// Render text responses
+// Render text responses as styled tags
 function renderTextResponses(result) {
-  const responses = Object.keys(result.breakdown);
+  const sortedResponses = Object.entries(result.breakdown).sort((a, b) => b[1] - a[1]);
+
+  const tagsHtml = sortedResponses.map(([response, count]) => {
+    const fontSize = Math.max(12, Math.min(24, 12 + (count * 2)));
+    const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    return `
+      <div style="
+        display: inline-block;
+        margin: 6px;
+        padding: 6px 12px;
+        background: ${color}15;
+        border: 2px solid ${color};
+        border-radius: 16px;
+        font-size: ${fontSize}px;
+        font-weight: ${count > 1 ? 'bold' : 'normal'};
+        color: ${color};
+      ">
+        ${escapeHtml(response)}${count > 1 ? ` <span style="opacity: 0.7;">(${count})</span>` : ''}
+      </div>
+    `;
+  }).join('');
+
   return `
-    <div class="text-responses">
-      ${responses.map(response => {
-        const count = result.breakdown[response];
-        return Array(count).fill(null).map(() => `
-          <div class="text-response-item">${escapeHtml(response)}</div>
-        `).join('');
-      }).join('')}
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; line-height: 1.8; min-height: 100px;">
+      ${tagsHtml}
     </div>
   `;
 }

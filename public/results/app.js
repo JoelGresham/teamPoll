@@ -114,19 +114,31 @@ function displayResults(results) {
     if (totalResponses === 0) {
       card.innerHTML += '<p class="no-responses">No responses yet</p>';
     } else if (result.question_type === 'text') {
-      // Display text responses
+      // Display text responses as styled tag cloud
       const textResponsesDiv = document.createElement('div');
-      textResponsesDiv.className = 'text-responses';
+      textResponsesDiv.style.cssText = 'background: white; padding: 20px; border-radius: 8px; line-height: 2;';
 
-      const responses = Object.keys(result.breakdown);
-      responses.forEach(response => {
-        const count = result.breakdown[response];
-        for (let i = 0; i < count; i++) {
-          const item = document.createElement('div');
-          item.className = 'text-response-item';
-          item.textContent = response;
-          textResponsesDiv.appendChild(item);
-        }
+      const sortedResponses = Object.entries(result.breakdown).sort((a, b) => b[1] - a[1]);
+
+      sortedResponses.forEach(([response, count]) => {
+        const fontSize = Math.max(14, Math.min(32, 14 + (count * 2)));
+        const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        const tag = document.createElement('div');
+        tag.style.cssText = `
+          display: inline-block;
+          margin: 8px;
+          padding: 8px 16px;
+          background: ${color}15;
+          border: 2px solid ${color};
+          border-radius: 20px;
+          font-size: ${fontSize}px;
+          font-weight: ${count > 1 ? 'bold' : 'normal'};
+          color: ${color};
+        `;
+        tag.textContent = response + (count > 1 ? ` (${count})` : '');
+        textResponsesDiv.appendChild(tag);
       });
 
       card.appendChild(textResponsesDiv);

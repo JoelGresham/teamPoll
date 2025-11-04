@@ -554,8 +554,40 @@ function updateQuestionResults(questionId, results) {
   // Find the question to check its type
   const question = currentPoll.questions.find(q => q.question_id === questionId);
   const isRating = question && question.question_type === 'rating';
+  const isText = question && question.question_type === 'text';
 
-  if (isRating) {
+  if (isText) {
+    // Display text responses as styled tags (cloud-like visualization)
+    const textResponsesHtml = Object.entries(results.breakdown)
+      .sort((a, b) => b[1] - a[1]) // Sort by count descending
+      .map(([response, count]) => {
+        const fontSize = Math.max(14, Math.min(32, 14 + (count * 2))); // Size based on frequency
+        const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        return `
+          <div class="text-response-item" style="
+            display: inline-block;
+            margin: 8px;
+            padding: 8px 16px;
+            background: ${color}15;
+            border: 2px solid ${color};
+            border-radius: 20px;
+            font-size: ${fontSize}px;
+            font-weight: ${count > 1 ? 'bold' : 'normal'};
+            color: ${color};
+          ">
+            ${response}${count > 1 ? ` <span style="opacity: 0.7;">(${count})</span>` : ''}
+          </div>
+        `;
+      }).join('');
+
+    resultsDiv.innerHTML = `
+      <div style="background: white; padding: 20px; border-radius: 8px; line-height: 2;">
+        ${textResponsesHtml}
+      </div>
+      <div class="histogram-info" style="margin-top: 10px;">${results.total} responses</div>
+    `;
+  } else if (isRating) {
     // Calculate average for rating questions
     let sum = 0;
     let count = 0;
