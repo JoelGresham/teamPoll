@@ -752,7 +752,7 @@ async function rerunPoll(sessionId) {
 // Edit Poll
 let editingPollId = null;
 
-async function editPoll(sessionId) {
+window.editPoll = async function(sessionId) {
   try {
     // Load poll data
     const response = await fetch(`/api/admin/polls/${sessionId}`);
@@ -785,13 +785,14 @@ async function editPoll(sessionId) {
 
       // Set question type
       questionDiv.querySelector('.question-type-select').value = question.question_type;
-      updateQuestionType(questionCount);
+      handleQuestionTypeChange(questionCount);
 
       // Set type-specific data
       if (question.question_type === 'multiple_choice' && question.options) {
         const optionsContainer = questionDiv.querySelector('.options-container');
         optionsContainer.innerHTML = '';
-        JSON.parse(question.options).forEach((option, idx) => {
+        const optionsArray = Array.isArray(question.options) ? question.options : JSON.parse(question.options);
+        optionsArray.forEach((option, idx) => {
           const optionGroup = document.createElement('div');
           optionGroup.className = 'option-input-group';
           optionGroup.innerHTML = `<input type="text" placeholder="Option ${idx + 1}" class="option-input" value="${option}" />`;
@@ -839,65 +840,100 @@ function setupDashboardSocket() {
 // Export Templates
 document.getElementById('export-templates-btn').addEventListener('click', async () => {
   try {
-    const response = await fetch('/api/admin/templates/export');
+    // Get available polls
+    const response = await fetch('/api/admin/templates/available');
     const data = await response.json();
 
-    if (data.templates && data.templates.length > 0) {
-      // Create JSON file and download
-      const jsonStr = JSON.stringify(data.templates, null, 2);
-      const blob = new Blob([jsonStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'poll-templates.json';
-      a.click();
-      URL.revokeObjectURL(url);
-
-      alert(`Exported ${data.templates.length} poll template(s)`);
-    } else {
-      alert('No poll templates to export');
+    if (!data.polls || data.polls.length === 0) {
+      alert('No polls available for export. Only unfinished, non-rerun polls can be exported.');
+      return;
     }
+
+    // Show selection dialog
+    const checkboxes = data.polls.map(poll => {
+      const pollName = poll.poll_name || poll.session_id;
+      return `
+        <label style="display: block; padding: 10px; cursor: pointer;">
+          <input type="checkbox" value="${poll.session_id}" checked style="margin-right: 10px;">
+          <strong>${pollName}</strong> (${poll.question_count} questions)
+        </label>
+      `;
+    }).join('');
+
+    const dialog = document.createElement('div');
+    dialog.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;';
+    dialog.innerHTML = `
+      <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+        <h2 style="margin-top: 0;">Select Polls to Export</h2>
+        <div id="poll-checkboxes">${checkboxes}</div>
+        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+          <button id="cancel-export" class="btn btn-secondary">Cancel</button>
+          <button id="confirm-export" class="btn btn-primary">Export Selected</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(dialog);
+
+    document.getElementById('cancel-export').onclick = () => dialog.remove();
+    document.getElementById('confirm-export').onclick = async () => {
+      const selected = Array.from(dialog.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+
+      if (selected.length === 0) {
+        alert('Please select at least one poll');
+        return;
+      }
+
+      try {
+        const exportResponse = await fetch('/api/admin/templates/export', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_ids: selected })
+        });
+
+        const exportData = await exportResponse.json();
+
+        if (exportData.success) {
+          alert(`Exported ${exportData.exported} poll template(s) to templates/poll-templates.json`);
+          dialog.remove();
+        } else {
+          alert('Failed to export: ' + (exportData.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error exporting:', error);
+        alert('Failed to export templates');
+      }
+    };
   } catch (error) {
-    console.error('Error exporting templates:', error);
-    alert('Failed to export templates');
+    console.error('Error loading available polls:', error);
+    alert('Failed to load available polls');
   }
 });
 
 // Import Templates
-document.getElementById('import-templates-btn').addEventListener('click', () => {
-  document.getElementById('import-file-input').click();
-});
-
-document.getElementById('import-file-input').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+document.getElementById('import-templates-btn').addEventListener('click', async () => {
+  if (!confirm('This will import polls from templates/poll-templates.json. Continue?')) {
+    return;
+  }
 
   try {
-    const text = await file.text();
-    const templates = JSON.parse(text);
-
     const response = await fetch('/api/admin/templates/import', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ templates })
+      }
     });
 
     const data = await response.json();
 
     if (data.success) {
-      alert(`Imported ${data.imported} poll template(s)`);
+      alert(`Imported ${data.imported} poll template(s) from templates/poll-templates.json`);
       loadDashboard();
     } else {
       alert('Failed to import templates: ' + (data.error || 'Unknown error'));
     }
-
-    // Reset file input
-    e.target.value = '';
   } catch (error) {
     console.error('Error importing templates:', error);
-    alert('Failed to import templates. Make sure the file is valid JSON.');
+    alert('Failed to import templates');
   }
 });
 

@@ -1,25 +1,120 @@
 [
   {
+    "poll_name": "Team Pulse Check",
+    "questions": [
+      {
+        "question_text": "Our team has a clear technical strategy and direction",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "I have the tools, software, and infrastructure I need to do my job effectively",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "We have enough time to address technical debt and maintain code quality",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "I am confident in our product's technical readiness to scale and support customers",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "Our team has the capacity to deliver on our current commitments",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "I have effective collaboration with other teams (manufacturing, sales, finance, etc.)",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "We have clear processes for product development and managing engineering/software changes",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "Our team's priorities and objectives are clear and stable",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "When direction or priorities change, the reasons are well communicated and understood",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "I feel comfortable raising concerns or challenges with the team/leadership",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "Overall, how well is the technology team functioning right now?",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      }
+    ]
+  },
+  {
     "poll_name": "Getting to know you",
     "questions": [
       {
         "question_text": "I'm more of a morning person or a night owl",
         "question_type": "multiple_choice",
-        "options": ["Morning person", "Night owl", "Somewhere in between"],
+        "options": [
+          "Morning person",
+          "Night owl",
+          "Somewhere in between"
+        ],
         "scale_min": null,
         "scale_max": null
       },
       {
         "question_text": "My ideal weekend involves",
         "question_type": "multiple_choice",
-        "options": ["Adventure & being active", "Relaxing & recharging", "Mix of both"],
+        "options": [
+          "Adventure & being active",
+          "Relaxing & recharging",
+          "Mix of both"
+        ],
         "scale_min": null,
         "scale_max": null
       },
       {
         "question_text": "Dogs or cats?",
         "question_type": "multiple_choice",
-        "options": ["Dogs", "Cats", "Both", "Neither"],
+        "options": [
+          "Dogs",
+          "Cats",
+          "Both",
+          "Neither"
+        ],
         "scale_min": null,
         "scale_max": null
       },
@@ -40,7 +135,11 @@
       {
         "question_text": "I'm most productive when",
         "question_type": "multiple_choice",
-        "options": ["Working completely alone", "Collaborating with others", "Mix depending on the task"],
+        "options": [
+          "Working completely alone",
+          "Collaborating with others",
+          "Mix depending on the task"
+        ],
         "scale_min": null,
         "scale_max": null
       },
@@ -61,14 +160,25 @@
       {
         "question_text": "Coffee, tea, or something else?",
         "question_type": "multiple_choice",
-        "options": ["Coffee", "Tea", "Energy drinks", "Water", "Other"],
+        "options": [
+          "Coffee",
+          "Tea",
+          "Energy drinks",
+          "Water",
+          "Other"
+        ],
         "scale_min": null,
         "scale_max": null
       },
       {
         "question_text": "I prefer to consume stories through",
         "question_type": "multiple_choice",
-        "options": ["Books", "TV shows/Movies", "Podcasts", "Don't have time for stories!"],
+        "options": [
+          "Books",
+          "TV shows/Movies",
+          "Podcasts",
+          "Don't have time for stories!"
+        ],
         "scale_min": null,
         "scale_max": null
       }

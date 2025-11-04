@@ -286,42 +286,91 @@ router.delete('/polls/:sessionId', (req, res) => {
   }
 });
 
-// Export poll templates (original polls only, no responses or reruns)
-router.get('/templates/export', (req, res) => {
+// Get available polls for export
+router.get('/templates/available', (req, res) => {
   try {
     const polls = Poll.getAll();
 
-    // Filter: only original polls (not reruns), exclude responses
-    const templates = polls
-      .filter(poll => !poll.is_rerun && poll.status !== 'completed')
-      .map(poll => {
-        const questions = Poll.getQuestions(poll.session_id);
-        return {
-          poll_name: poll.poll_name,
-          questions: questions.map(q => ({
-            question_text: q.question_text,
-            question_type: q.question_type,
-            options: q.options,
-            scale_min: q.scale_min,
-            scale_max: q.scale_max
-          }))
-        };
-      });
+    // Filter: only original polls (not reruns)
+    const available = polls
+      .filter(poll => !poll.is_rerun)
+      .map(poll => ({
+        session_id: poll.session_id,
+        poll_name: poll.poll_name,
+        created_at: poll.created_at,
+        question_count: Poll.getQuestions(poll.session_id).length
+      }));
 
-    res.json({ templates });
+    res.json({ polls: available });
+  } catch (error) {
+    console.error('Error getting available polls:', error);
+    res.status(500).json({ error: 'Failed to get available polls' });
+  }
+});
+
+// Export selected polls to templates file
+router.post('/templates/export', (req, res) => {
+  try {
+    const { session_ids } = req.body;
+    const fs = require('fs');
+    const path = require('path');
+
+    if (!session_ids || !Array.isArray(session_ids) || session_ids.length === 0) {
+      return res.status(400).json({ error: 'Session IDs array is required' });
+    }
+
+    const templates = [];
+
+    session_ids.forEach(sessionId => {
+      const poll = Poll.getById(sessionId);
+      if (!poll || poll.is_rerun) {
+        return; // Skip invalid polls or reruns
+      }
+
+      const questions = Poll.getQuestions(sessionId);
+      templates.push({
+        poll_name: poll.poll_name,
+        questions: questions.map(q => ({
+          question_text: q.question_text,
+          question_type: q.question_type,
+          options: q.options,
+          scale_min: q.scale_min,
+          scale_max: q.scale_max
+        }))
+      });
+    });
+
+    // Write to templates/poll-templates.json
+    const templatesPath = path.join(__dirname, '../../templates/poll-templates.json');
+    fs.writeFileSync(templatesPath, JSON.stringify(templates, null, 2));
+
+    res.json({
+      success: true,
+      exported: templates.length
+    });
   } catch (error) {
     console.error('Error exporting templates:', error);
     res.status(500).json({ error: 'Failed to export templates' });
   }
 });
 
-// Import poll templates
+// Import poll templates from file
 router.post('/templates/import', (req, res) => {
   try {
-    const { templates } = req.body;
+    const fs = require('fs');
+    const path = require('path');
 
-    if (!templates || !Array.isArray(templates)) {
-      return res.status(400).json({ error: 'Templates array is required' });
+    const templatesPath = path.join(__dirname, '../../templates/poll-templates.json');
+
+    if (!fs.existsSync(templatesPath)) {
+      return res.status(404).json({ error: 'No templates file found' });
+    }
+
+    const templatesData = fs.readFileSync(templatesPath, 'utf8');
+    const templates = JSON.parse(templatesData);
+
+    if (!Array.isArray(templates)) {
+      return res.status(400).json({ error: 'Invalid templates file format' });
     }
 
     const imported = [];
