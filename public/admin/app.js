@@ -6,6 +6,7 @@ let questionCount = 0;
 let hasActivePoll = false;
 let activePollId = null;
 let revealedQuestions = new Set(); // Track which questions have been revealed
+let draggedElement = null; // Track the element being dragged
 
 // Screen Management
 function showScreen(screenId) {
@@ -144,7 +145,10 @@ function addQuestion() {
 
   questionDiv.innerHTML = `
     <div class="question-header">
-      <h4>Question ${questionCount}</h4>
+      <div class="question-title-section">
+        <button class="drag-handle" title="Drag to reorder">⠿</button>
+        <h4>Question ${questionCount}</h4>
+      </div>
       <button class="btn btn-danger btn-small" onclick="removeQuestion(${questionCount})">Remove</button>
     </div>
     <div class="question-fields">
@@ -163,6 +167,13 @@ function addQuestion() {
       </div>
     </div>
   `;
+
+  // Make the question item draggable
+  questionDiv.draggable = true;
+  questionDiv.addEventListener('dragstart', handleDragStart);
+  questionDiv.addEventListener('dragend', handleDragEnd);
+  questionDiv.addEventListener('dragover', handleDragOver);
+  questionDiv.addEventListener('drop', handleDrop);
 
   container.appendChild(questionDiv);
 }
@@ -291,6 +302,66 @@ function updateEditOptionButtons(index) {
       ${buttons}
     `;
   });
+}
+
+// Drag and Drop Handlers for Question Reordering
+function handleDragStart(e) {
+  draggedElement = this;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/html', this.innerHTML);
+}
+
+function handleDragEnd(e) {
+  this.classList.remove('dragging');
+
+  // Remove all drag-over effects
+  document.querySelectorAll('.question-item').forEach(item => {
+    item.classList.remove('drag-over');
+  });
+}
+
+function handleDragOver(e) {
+  if (e.preventDefault) {
+    e.preventDefault();
+  }
+
+  e.dataTransfer.dropEffect = 'move';
+
+  const afterElement = getDragAfterElement(document.getElementById('questions-container'), e.clientY);
+  const draggable = document.querySelector('.dragging');
+  const container = document.getElementById('questions-container');
+
+  if (afterElement == null) {
+    container.appendChild(draggable);
+  } else {
+    container.insertBefore(draggable, afterElement);
+  }
+
+  return false;
+}
+
+function handleDrop(e) {
+  if (e.stopPropagation) {
+    e.stopPropagation();
+  }
+
+  return false;
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll('.question-item:not(.dragging)')];
+
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
 // Save Poll

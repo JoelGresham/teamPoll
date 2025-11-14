@@ -267,6 +267,18 @@ textarea {
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 15px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.question-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+  cursor: grabbing;
+}
+
+.question-item.drag-over {
+  border-color: #667eea;
+  background: #e8eaf6;
 }
 
 .question-header {
@@ -274,6 +286,31 @@ textarea {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+}
+
+.question-title-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drag-handle {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: grab;
+  padding: 5px;
+  color: #6c757d;
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+
+.drag-handle:hover {
+  color: #667eea;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .question-header h4 {
