@@ -1,5 +1,80 @@
 [
   {
+    "poll_name": "HPES Survey",
+    "questions": [
+      {
+        "question_text": "My individual objectives are clear and measurable",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "What constitutes low performance for me is clearly defined",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "The quality of my team's strategy/plan is equal to the challenge of our objectives",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "The organisation measures the performance of my team clearly and accurately",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "The measures used to assess the performance of my team give my immediate manager a clear indication of who the high and low performers are",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "In my team, the high performers receive the greatest share of the rewards",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "Within my team, any lower performers who do not improve move on quickly",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "I have strong reasons to remain with this organisation",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "The culture of my team drives better performance",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "I believe that the high performance environment structure currently being implemented will lead to an increase in performance of the team",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      }
+    ]
+  },
+  {
     "poll_name": "Team Pulse Check",
     "questions": [
       {
@@ -85,6 +160,27 @@
         "options": null,
         "scale_min": null,
         "scale_max": null
+      },
+      {
+        "question_text": "What has stopped us in the past from implementing the change we've asked for?",
+        "question_type": "text",
+        "options": null,
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "The culture of my team drives better performance",
+        "question_type": "rating",
+        "options": null,
+        "scale_min": 0,
+        "scale_max": 10
+      },
+      {
+        "question_text": "What is the most important thing you need to make your job enjoyable and the best you've ever had?",
+        "question_type": "text",
+        "options": null,
+        "scale_min": null,
+        "scale_max": null
       }
     ]
   },
@@ -92,12 +188,14 @@
     "poll_name": "Getting to know you",
     "questions": [
       {
-        "question_text": "I'm more of a morning person or a night owl",
+        "question_text": "How long have you been at Spee3D?",
         "question_type": "multiple_choice",
         "options": [
-          "Morning person",
-          "Night owl",
-          "Somewhere in between"
+          "<1 yr",
+          "1-3 yrs",
+          "3-5 yrs",
+          "5-7 yrs",
+          "7+ yrs"
         ],
         "scale_min": null,
         "scale_max": null
@@ -114,14 +212,20 @@
         "scale_max": null
       },
       {
-        "question_text": "Dogs or cats?",
+        "question_text": "I'm more of a morning person or a night owl",
         "question_type": "multiple_choice",
         "options": [
-          "Dogs",
-          "Cats",
-          "Both",
-          "Neither"
+          "Morning person",
+          "Night owl",
+          "Somewhere in between"
         ],
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "My most favourite food is",
+        "question_type": "text",
+        "options": null,
         "scale_min": null,
         "scale_max": null
       },
@@ -131,13 +235,6 @@
         "options": null,
         "scale_min": 0,
         "scale_max": 10
-      },
-      {
-        "question_text": "My most favourite food is",
-        "question_type": "text",
-        "options": null,
-        "scale_min": null,
-        "scale_max": null
       },
       {
         "question_text": "I'm most productive when",
@@ -151,31 +248,11 @@
         "scale_max": null
       },
       {
-        "question_text": "My hidden talent or hobby that most people don't know about",
-        "question_type": "text",
-        "options": null,
-        "scale_min": null,
-        "scale_max": null
-      },
-      {
         "question_text": "On a scale of 0-10, how much do I love trying new foods? (0 = stick to what I know, 10 = always experimenting)",
         "question_type": "rating",
         "options": null,
         "scale_min": 0,
         "scale_max": 10
-      },
-      {
-        "question_text": "Coffee, tea, or something else?",
-        "question_type": "multiple_choice",
-        "options": [
-          "Coffee",
-          "Tea",
-          "Energy drinks",
-          "Water",
-          "Other"
-        ],
-        "scale_min": null,
-        "scale_max": null
       },
       {
         "question_text": "I prefer to consume stories through",
@@ -187,6 +264,13 @@
           "Games",
           "Don't have time for stories!"
         ],
+        "scale_min": null,
+        "scale_max": null
+      },
+      {
+        "question_text": "Favourite thing to do outside of work?",
+        "question_type": "text",
+        "options": null,
         "scale_min": null,
         "scale_max": null
       },
